@@ -140,16 +140,30 @@ pub fn derive(input: &Input) -> TokenStream {
 
                 #[inline]
                 fn next(&mut self) -> Option<#ref_name<'a>> {
-                    self.0.next().and_then(|#iter_pat|
-                        Some(#ref_name{
-                            #(#fields_names,)*
-                        })
-                    )
+                    self.0.next()
+                        .map(|#iter_pat|
+                            #ref_name{
+                                #(#fields_names,)*
+                            }
+                        )
                 }
 
                 #[inline]
                 fn size_hint(&self) -> (usize, Option<usize>) {
                     self.0.size_hint()
+                }
+
+                #[inline]
+                fn fold<B, F>(mut self, init: B, mut f: F) -> B
+                where
+                    F: FnMut(B, Self::Item) -> B,
+                {
+                    self.0
+                        .map(|#iter_pat|
+                        #ref_name{
+                            #(#fields_names,)*
+                        })
+                        .fold(init, f)
                 }
             }
 
@@ -202,16 +216,29 @@ pub fn derive(input: &Input) -> TokenStream {
 
                 #[inline]
                 fn next(&mut self) -> Option<#ref_mut_name<'a>> {
-                    self.0.next().and_then(|#iter_pat|
-                        Some(#ref_mut_name{
+                    self.0.next().map(|#iter_pat|
+                        #ref_mut_name{
                             #(#fields_names,)*
-                        })
+                        }
                     )
                 }
 
                 #[inline]
                 fn size_hint(&self) -> (usize, Option<usize>) {
                     self.0.size_hint()
+                }
+
+                #[inline]
+                fn fold<B, F>(mut self, init: B, mut f: F) -> B
+                where
+                    F: FnMut(B, Self::Item) -> B,
+                {
+                    self.0
+                        .map(|#iter_pat|
+                        #ref_mut_name{
+                            #(#fields_names,)*
+                        })
+                        .fold(init, f)
                 }
             }
 
